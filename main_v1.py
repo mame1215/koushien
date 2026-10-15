@@ -2,10 +2,10 @@ import pyhula
 import time
 import math
 
-import color_flight
-from color_flight import ColorUserApi
+import python_files.color_flight as color_flight
+from python_files.color_flight import ColorUserApi
 
-from ar_flight import ARUserApi
+from python_files.ar_flight import ARUserApi
 
 class ARColorUserApi(ARUserApi, ColorUserApi):
     pass

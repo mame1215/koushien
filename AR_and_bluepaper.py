@@ -2,10 +2,10 @@ import time
 
 import cv2
 
-import color_flight
-from color_flight import ColorUserApi
+import python_files.color_flight as color_flight
+from python_files.color_flight import ColorUserApi
 
-from ar_flight import ARUserApi
+from python_files.ar_flight import ARUserApi
 
 
 # 最初の着陸地点から青画用紙までの移動量（cm）

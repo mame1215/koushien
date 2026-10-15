@@ -2,8 +2,8 @@ import time
 
 import cv2
 
-import color_flight
-from color_flight import ColorUserApi
+import python_files.color_flight as color_flight
+from python_files.color_flight import ColorUserApi
 
 
 def main():
