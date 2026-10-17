@@ -1,13 +1,14 @@
 import pyhula
 import time
 
-import python_files.color_flight as color_flight
-from python_files.color_flight import ColorUserApi
+import color_flight as color_flight
+from color_flight import ColorUserApi
 
-from python_files.ar_flight import ARUserApi
+from ar_flight import ARUserApi
 
 class ARColorUserApi(ARUserApi, ColorUserApi):
     pass
+
 
 api = ARColorUserApi()
 if not api.connect():
