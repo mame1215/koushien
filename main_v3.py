@@ -122,116 +122,70 @@ def ARBoard(board_AR_number,floor_AR_number,board_x,board_y):
     else:
         return "ボード検出失敗"
 
+def move_and_land(num):
+
+    print(f"move_and_land({num})")
+
+    """一つ前がARならば、離陸後合わせる"""
+    if order[num].isdecimal():
+        if num != 1 and order[num-1].isdecimal():
+            ret = takeoff(100,True,order[num-1])
+        else:
+            ret = takeoff(100,False)
+    else:
+        if num != 1 and order[num-1].isdecimal():
+            ret = takeoff(120,True,order[num-1])
+        else:
+            ret = takeoff(120,False)
+    if ret == "Fail":
+        return "Fail"
+
+    api.single_fly_straight_flight(map[order[num]][0]-map[order[num-1]][0],map[order[num]][1]-map[order[num-1]][1],0,60,{'r':0,'g':255,'b':0,'mode':1})
+    if avoid_Barrier():
+        return "found_Barrier"
+
+    if order[num].isdecimal():
+        ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
+    else:
+        ret = api.single_fly_color_overhead(order[num],2)
+    print(ret)
+    if ret['success'] == False:
+        return "Fail"
+    api.single_fly_touchdown()
+
+    if num != len(order)-1:
+        time.sleep(12)
+    return "success"
+
 
 
 api = ARColorUserApi()
+
+"""スタート地点を原点として、座標(cm)を設定する"""
+map = {
+    'start': [0,0],
+    '0': [-54,78],
+    '1': [54,78],
+    '2': [-5,19],
+    '3': [-90,130],
+    '4': [90,100],
+    'green': [0,219]
+}
+"""順番を設定する。startは固定"""
+order = ['start','0','1','2','3','4','green']
 
 def main():
 
     connect()
 
-    """No.0に着陸"""
-    ret = takeoff(100,False)
-    if ret == "Fail":
-        return "Fail"
-
-    api.single_fly_straight_flight(-54,78,0,60,{'r':0,'g':255,'b':0,'mode':1})
-    if avoid_Barrier():
-        return "found_Barrier"
-
-    ret = api.single_fly_optical_flow_descent(30,2,0,50)
-    print(ret)
-    api.single_fly_touchdown()
-    if ret['success'] == False:
-        return "Fail"
-
-
-    time.sleep(12)
-
-    """No.1に着陸"""
-    ret = takeoff(100,True,0)
-    if ret == "Fail":
-        return "Fail"
-
-    api.single_fly_straight_flight(108,0,0,60,{'r':0,'g':255,'b':0,'mode':1})
-    if avoid_Barrier():
-        return "found_Barrier"
-
-    ret = api.single_fly_optical_flow_descent(30,2,1,50)
-    print(ret)
-    api.single_fly_touchdown()
-    if ret['success'] == False:
-        return "Fail"
-
-    time.sleep(12)
-
-    """No.2に着陸"""
-    ret = takeoff(100,True,1)
-    if ret == "Fail":
-        return "Fail"
-
-    api.single_fly_straight_flight(49-108,97,0,60,{'r':0,'g':255,'b':0,'mode':1})
-    if avoid_Barrier():
-        return "found_Barrier"
-
-    ret = api.single_fly_optical_flow_descent(30,2,2,50)
-    print(ret)
-    api.single_fly_touchdown()
-    if ret['success'] == False:
-        return "Fail"
-
-    time.sleep(12)
-
-    """No.3に着陸"""
-    ret = takeoff(100,True,2)
-    if ret == "Fail":
-        return "Fail"
-
-    api.single_fly_straight_flight(-90,111,0,60,{'r':0,'g':255,'b':0,'mode':1})
-    if avoid_Barrier():
-        return "found_Barrier"
-
-    ret = api.single_fly_optical_flow_descent(30,2,3,50)
-    print(ret)
-    api.single_fly_touchdown()
-    if ret['success'] == False:
-        return "Fail"
-
-    time.sleep(12)
-
-    """No.4に着陸"""
-    ret = takeoff(100,True,3)
-    if ret == "Fail":
-        return "Fail"
-
-    api.single_fly_straight_flight(180,-30,0,60,{'r':0,'g':255,'b':0,'mode':1})
-    if avoid_Barrier():
-        return "found_Barrier"
-
-    ret = api.single_fly_optical_flow_descent(30,2,4,50)
-    print(ret)
-    api.single_fly_touchdown()
-    if ret['success'] == False:
-        return "Fail"
-
-    time.sleep(12)
-
-    """緑画用紙に着陸"""
-    ret = takeoff(120,True,4)
-    if ret == "Fail":
-        return "Fail"
-
-    api.single_fly_straight_flight(-90,200-81-15,0,60,{'r':0,'g':255,'b':0,'mode':1})
-    if avoid_Barrier():
-        return "found_Barrier"    
-
-    ret = api.single_fly_color_overhead("green",2)
-    print(ret)
-
-    if avoid_Barrier():
-        return "found_Barrier"
-
-    api.single_fly_touchdown()
+    for i in range(1,len(order)-1,1):
+        ret = move_and_land(i)
+        if ret == "Fail":
+            api.single_fly_touchdown()
+            return "Fail"
+        elif ret == "found_Barrier":
+            return "found_Barrier"
+    
     print(f"battery={api.get_battery()}")
     return "success"
 
