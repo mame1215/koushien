@@ -22,6 +22,8 @@ main_v1.py
   AR > AR > 色画用紙
 main_v2.py
   AR > AR > 看板付き > 色画用紙
+main_v3.py
+  v1,v2を一般化
 sdk_test.py
   Hula_sdkを試すためのファイル。使わない
 takeoff_touchdown.py

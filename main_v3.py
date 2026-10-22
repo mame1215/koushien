@@ -30,9 +30,18 @@ order = ['start','2','7','blue']
 board_num = 8
 floor_num = 7
 
+"""看板の何cm奥に移動するか（つまり基本負）"""
+BOARD_ADJUSTMENT_X = 0
+BORAD_ADJUSTMENT_Y = -40
+
 """色画用紙のときの入力座標と移動の差"""
 COLOR_PAPER_ADJUSTMENT_X = 0
 COLOR_PAPER_ADJUSTMENT_Y = -15
+
+"""optical_flow_descent各種入力値"""
+TARGET_HEIGHT_CM = 30 #最後に位置合わせするときの高さ
+ALIGNMENT_COUNT = 2 #この回数 + 一番上の1回 ARに位置合わせ
+MAX_STEP_CM = 50 #下降する最大のz移動量
 
 def avoid_Barrier():
     #障害物検知ON
@@ -132,7 +141,7 @@ def ARBoard(board_AR_number,floor_AR_number,board_x,board_y):
     ret = api.single_fly_Anticipatory_recognition(board_AR_number)
 
     if ret['result'] == True:
-        api.single_fly_straight_flight(ret['x'],ret['y']-40,0,60)
+        api.single_fly_straight_flight(ret['x'] + BOARD_ADJUSTMENT_X,ret['y'] + BORAD_ADJUSTMENT_Y,0,60)
         if avoid_Barrier():
             return {
                 'success' : False,
@@ -192,14 +201,14 @@ def move_and_land(num):
             ret = ARBoard(board_num,floor_num,map[order[num]][0],map[order[num]][1])
             #if ret['comment'] == "床面光学フローに失敗":
             #    if find_AR(num) == "success":
-            #        ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
+            #        ret = api.single_fly_optical_flow_descent(TARGET_HEIGHT_CM,ALIGNMENT_COUNT,int(order[num]),MAX_STEP_CM)
             #    else:
             #        return "Fail"
         else:
-            ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
+            ret = api.single_fly_optical_flow_descent(TARGET_HEIGHT_CM,ALIGNMENT_COUNT,int(order[num]),MAX_STEP_CM)
             #if ret['success'] == False:
             #    if find_AR(num) == "success":
-            #        ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
+            #        ret = api.single_fly_optical_flow_descent(TARGET_HEIGHT_CM,ALIGNMENT_COUNT,int(order[num]),MAX_STEP_CM)
             #    else:
             #        return "Fail"
     else:
