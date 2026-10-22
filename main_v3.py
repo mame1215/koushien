@@ -39,52 +39,41 @@ COLOR_PAPER_ADJUSTMENT_X = 0
 COLOR_PAPER_ADJUSTMENT_Y = -15
 
 """optical_flow_descent各種入力値"""
-TARGET_HEIGHT_CM = 30 #最後に位置合わせするときの高さ
-ALIGNMENT_COUNT = 2 #この回数 + 一番上の1回 ARに位置合わせ
-MAX_STEP_CM = 50 #下降する最大のz移動量
+TARGET_HEIGHT_CM = 30     #最後に位置合わせするときの高さ
+ALIGNMENT_COUNT = 2     #この回数 + 一番上の1回 ARに位置合わせ
+MAX_STEP_CM = 50     #下降する最大のz移動量
+
+"""avoid_Barrier()使用か"""
+USE_AVOID_BARRIER = True
 
 def avoid_Barrier():
-    #障害物検知ON
-    #api.single_fly_barrier_aircraft(True)
+    if USE_AVOID_BARRIER:
 
-    info = api.Plane_getBarrier()
-    print(info)
-    if info['forward']:
-        api.single_fly_back(15,20,{'r':255,'g':0,'b':0,'mode':1})
-        api.single_fly_touchdown()
+        info = api.Plane_getBarrier()
+        print(info)
+        if info['forward']:
+            api.single_fly_back(15,20,{'r':255,'g':0,'b':0,'mode':1})
+            api.single_fly_touchdown()
 
-        #障害物検知OFF
-        #api.single_fly_barrier_aircraft(False)
+            return True
+        elif info['back']:
+            api.single_fly_forward(15,20,{'r':255,'g':0,'b':0,'mode':1})
+            api.single_fly_touchdown()
 
-        return True
-    elif info['back']:
-        api.single_fly_forward(15,20,{'r':255,'g':0,'b':0,'mode':1})
-        api.single_fly_touchdown()
+            return True
+        elif info['left']:
+            api.single_fly_right(15,20,{'r':255,'g':0,'b':0,'mode':1})
+            api.single_fly_touchdown()
 
-        #障害物検知OFF
-        #api.single_fly_barrier_aircraft(False)
+            return True
+        elif info['right']:
+            api.single_fly_left(15,20,{'r':255,'g':0,'b':0,'mode':1})
+            api.single_fly_touchdown()
+            return True
+        else:
+            return False
 
-        return True
-    elif info['left']:
-        api.single_fly_right(15,20,{'r':255,'g':0,'b':0,'mode':1})
-        api.single_fly_touchdown()
-
-        #障害物検知OFF
-        #api.single_fly_barrier_aircraft(False)
-
-        return True
-    elif info['right']:
-        api.single_fly_left(15,20,{'r':255,'g':0,'b':0,'mode':1})
-        api.single_fly_touchdown()
-
-        #障害物検知OFF
-        #api.single_fly_barrier_aircraft(False)
-
-        return True
     else:
-        #障害物検知OFF
-        #api.single_fly_barrier_aircraft(False)
-
         return False
 
 def connect():
@@ -108,12 +97,12 @@ def connect():
     #映像取得待機
     time.sleep(3)
 
-    #障害物検知ON
-    api.single_fly_barrier_aircraft(True)
+    #障害物検知ON/OFF
+    api.single_fly_barrier_aircraft(USE_AVOID_BARRIER)
 
 def takeoff(takeoff_height=100, Optical_flow_alignment=False, AR_number=0):
     """離陸(takeoff_height: 離陸後の高さ, Optical_flow_alignment: 光学フロー整列するかどうか)"""
-    api.single_fly_lamplight(255, 255, 255, 3, 1) #離陸を知らせる白発光
+    api.single_fly_lamplight(255, 255, 255, 3, 32) #離陸を知らせる白発光
     api.single_fly_takeoff() #離陸
     api.single_fly_straight_flight(0,0,takeoff_height-100,20) #離陸後の高さに移動
 
@@ -179,9 +168,9 @@ def move_and_land(num):
             ret = takeoff(100,False)
     else:
         if num != 1 and order[num-1].isdecimal():
-            ret = takeoff(120,True,order[num-1])
+            ret = takeoff(150,True,order[num-1])
         else:
-            ret = takeoff(120,False)
+            ret = takeoff(150,False)
     if ret == "Fail":
         return "Fail"
 
@@ -226,7 +215,7 @@ def move_and_land(num):
 
 def find_AR(num):
     """見つけられなかったARを探す"""
-    MOVE_DISTANCE = 10
+    MOVE_DISTANCE = 20
     last_moved_x = map[order[num]][0]-map[order[num-1]][0]
     last_moved_y = map[order[num]][1]-map[order[num-1]][1]
     last_moved = math.hypot(last_moved_x,last_moved_y)
