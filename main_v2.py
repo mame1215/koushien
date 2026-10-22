@@ -2,10 +2,10 @@ import pyhula
 import time
 import math
 
-import python_files.color_flight as color_flight
-from python_files.color_flight import ColorUserApi
+import color_flight as color_flight
+from color_flight import ColorUserApi
 
-from python_files.ar_flight import ARUserApi
+from ar_flight import ARUserApi
 
 class ARColorUserApi(ARUserApi, ColorUserApi):
     pass
@@ -108,7 +108,7 @@ def ARBoard(board_AR_number,floor_AR_number,board_x,board_y):
     ret = api.single_fly_Anticipatory_recognition(board_AR_number)
 
     if ret['result'] == True:
-        api.single_fly_straight_flight(ret['x']-10,ret['y']-40,0,60)
+        api.single_fly_straight_flight(ret['x']-10,ret['y']-50,0,60)
         if avoid_Barrier():
             return "found_Barrier"
 
@@ -130,73 +130,18 @@ def main():
 
     connect()
 
-    """No.0に着陸"""
-    ret = takeoff(100,False)
+    ret = takeoff(150,True,2)
     if ret == "Fail":
         return "Fail"
 
-    api.single_fly_straight_flight(-65,100,0,60,{'r':0,'g':255,'b':0,'mode':1})
-    if avoid_Barrier():
-        return "found_Barrier"
-
-    ret = api.single_fly_optical_flow_descent(30,2,0,50)
-    print(ret)
-    api.single_fly_touchdown()
-    if ret['success'] == False:
-        return "Fail"
-
-
-    time.sleep(10)
-
-    """No.1に着陸"""
-    ret = takeoff(100,True,0)
-    if ret == "Fail":
-        return "Fail"
-
-    api.single_fly_straight_flight(-15,145,0,60,{'r':0,'g':255,'b':0,'mode':1})
-    if avoid_Barrier():
-        return "found_Barrier"
-
-    ret = api.single_fly_optical_flow_descent(30,2,1,50)
-    print(ret)
-    api.single_fly_touchdown()
-    if ret['success'] == False:
-        return "Fail"
-
-    time.sleep(10)
-
-    """ボード付きに着陸"""
-    ret = takeoff(100,True,1)
-    if ret == "Fail":
-        return "Fail"
-
-    ret = ARBoard(2,3,120,240)
-    print(ret)
-    if not ret == "success":
-        api.single_fly_touchdown()
-        return "ARBoard Fail"
-
-    print("ARBoard success")
-    api.single_fly_touchdown()
-
-    time.sleep(10)
-
-    """緑画用紙に着陸"""
-    ret = takeoff(120,True,3)
-    if ret == "Fail":
-        return "Fail"
-
-    api.single_fly_straight_flight(-120+15,-240,0,60,{'r':0,'g':255,'b':0,'mode':1})
+    api.single_fly_straight_flight(173-15,510-182-80,0,100,{'r':0,'g':255,'b':0,'mode':1})
     if avoid_Barrier():
         return "found_Barrier"    
 
-    ret = api.single_fly_color_overhead("green",2)
+    ret = api.single_fly_color_overhead("blue",3)
     print(ret)
-
-    if avoid_Barrier():
-        return "found_Barrier"
-
     api.single_fly_touchdown()
+
     print(f"battery={api.get_battery()}")
     return "success"
 

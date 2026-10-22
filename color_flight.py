@@ -20,10 +20,10 @@ COLOR_ALIGNMENT_DESCENT_CM = 20
 IMAGE_DOWN_IS_FORWARD = False
 SHOW_COLOR_DEBUG = False
 COLOR_RANGES = {
-    "red": ((0, 152, 64), (9, 255, 204), (179, 153, 64), (179, 254, 248)),
+    "red": ((0, 105, 36), (6, 255, 230), (173, 101, 48), (179, 254, 245)),
     "yellow": ((18, 35, 30), (40, 255, 255), None, None),
     "green": ((45, 35, 89), (111, 255, 224), None, None),
-    "blue": ((82, 94, 95), (179, 211, 141), None, None),
+    "blue": ((53, 81, 75), (161, 255, 255), None, None),
 }
 #色画用紙の上に移動するとき、認識した距離と移動する距離の割合
 COLOR_MOVING_RATE = 0.6
