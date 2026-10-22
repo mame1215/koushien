@@ -110,7 +110,7 @@ def takeoff(takeoff_height=100, Optical_flow_alignment=False, AR_number=0):
 
     #光学フロー整列
     if Optical_flow_alignment:
-        ret = api.single_fly_Optical_flow_alignment(AR_number,20,0)
+        ret = api.single_fly_Optical_flow_alignment(int(AR_number),20,0)
         if ret['result'] == False:
             print("Couldn't find AR")
             api.single_fly_touchdown()
@@ -177,39 +177,42 @@ def move_and_land(num):
         return "Fail"
 
     """ボード付きでないときは座標からヘリポート上に移動"""
-    if int(order[num]) != floor_num:
-        if order[num].isdecimal():
+    if order[num].isdecimal():
+        if int(order[num]) != floor_num:
             api.single_fly_straight_flight(map[order[num]][0]-map[order[num-1]][0],map[order[num]][1]-map[order[num-1]][1],0,60,{'r':0,'g':255,'b':0,'mode':1})
-        else:
-            api.single_fly_straight_flight((map[order[num]][0]+COLOR_PAPER_ADJUSTMENT_X)-map[order[num-1]][0],(map[order[num]][1]+COLOR_PAPER_ADJUSTMENT_Y)-map[order[num-1]][1],0,60,{'r':0,'g':255,'b':0,'mode':1})
-        if avoid_Barrier():
-            return "found_Barrier"
+    else:
+        api.single_fly_straight_flight((map[order[num]][0]+COLOR_PAPER_ADJUSTMENT_X)-map[order[num-1]][0],(map[order[num]][1]+COLOR_PAPER_ADJUSTMENT_Y)-map[order[num-1]][1],0,60,{'r':0,'g':255,'b':0,'mode':1})
+    if avoid_Barrier():
+        return "found_Barrier"
 
     """ヘリポートに着陸"""
-    if int(order[num]) == floor_num:
-        ret = ARBoard(board_num,floor_num,map[order[num]][0],map[order[num]][1])
-        #if ret['comment'] == "床面光学フローに失敗":
-        #    if find_AR(num) == "success":
-        #        ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
-        #    else:
-        #        return "Fail"
-    elif order[num].isdecimal():
-        ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
-        #if ret['success'] == False:
-        #    if find_AR(num) == "success":
-        #        ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
-        #    else:
-        #        return "Fail"
+
+    if order[num].isdecimal():
+        if int(order[num]) == floor_num:
+            ret = ARBoard(board_num,floor_num,map[order[num]][0],map[order[num]][1])
+            #if ret['comment'] == "床面光学フローに失敗":
+            #    if find_AR(num) == "success":
+            #        ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
+            #    else:
+            #        return "Fail"
+        else:
+            ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
+            #if ret['success'] == False:
+            #    if find_AR(num) == "success":
+            #        ret = api.single_fly_optical_flow_descent(30,2,int(order[num]),50)
+            #    else:
+            #        return "Fail"
     else:
         ret = api.single_fly_color_overhead(order[num],2)
+
     print(ret)
     if ret['success'] == False:
         return "Fail"
     api.single_fly_touchdown()
 
-    """最後でなければ12秒待機"""
+    """最後でなければ10秒待機"""
     if num != len(order)-1:
-        time.sleep(12)
+        time.sleep(10)
     return "success"
 
 def find_AR(num):
